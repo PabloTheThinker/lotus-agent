@@ -1,0 +1,7 @@
+name: lotus-moments
+version: 0.24.0
+description: Moments connection system — link events, threads, and conversation data across time.
+hooks:
+  - on_session_start
+  - post_llm_call
+  - on_session_end

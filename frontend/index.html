@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>L.O.T.U.S.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <span class="mark" aria-hidden="true">❀</span>
+        <div>
+          <h1>L.O.T.U.S.</h1>
+          <p class="tag">Light Over The Unseen Shadows</p>
+        </div>
+      </div>
+      <div class="status" id="status">Connecting…</div>
+    </header>
+
+    <aside class="setup hidden" id="setupBanner" role="status">
+      <div>
+        <strong>Connect a model to chat</strong>
+        <p id="setupHint">
+          In a terminal: <code>lotus setup</code> or <code>./scripts/lotus-setup.sh</code>
+          — then start the gateway with <code>./scripts/lotus-gateway.sh start</code>.
+        </p>
+      </div>
+      <button type="button" class="crisis-close" id="setupClose" aria-label="Dismiss setup tip">Dismiss</button>
+    </aside>
+
+    <aside class="crisis hidden" id="crisisBanner" role="region" aria-label="Crisis help">
+      <div>
+        <strong id="crisisTitle">You matter — please reach a person now if you're in danger.</strong>
+        <p id="crisisBody">
+          Local emergency services · US <a href="tel:988">988</a> / <a href="tel:911">911</a> ·
+          UK <a href="tel:116123">116 123</a> ·
+          <a href="https://www.iasp.info/suicidalthoughts/" target="_blank" rel="noopener">IASP worldwide</a>
+        </p>
+      </div>
+      <button type="button" class="crisis-close" id="crisisClose" aria-label="Dismiss">Dismiss</button>
+    </aside>
+
+    <main class="stage">
+      <section class="hero" id="hero">
+        <p class="eyebrow">Companion · Hermes foundation</p>
+        <h2>A steady light when the dark feels heavy.</h2>
+        <p class="lede">
+          Speak freely. L.O.T.U.S. listens, adapts to your words over time, and helps you take one secure step —
+          never toward chaos or harm.
+        </p>
+        <button type="button" class="cta" id="startBtn">Begin</button>
+      </section>
+
+      <section class="chat hidden" id="chatView" aria-label="Conversation">
+        <div class="chat-toolbar">
+          <label class="region-pick" for="regionSelect">
+            <span>Help region</span>
+            <select id="regionSelect" aria-label="Crisis help region">
+              <option value="US">US</option>
+              <option value="CA">Canada</option>
+              <option value="GB">UK</option>
+              <option value="AU">Australia</option>
+              <option value="NZ">New Zealand</option>
+              <option value="IE">Ireland</option>
+              <option value="IN">India</option>
+            </select>
+          </label>
+          <button type="button" class="ghost" id="journeyToggle" aria-pressed="false" title="Opt-in journey meter">
+            Journey off
+          </button>
+        </div>
+        <aside class="journey hidden" id="journeyPanel" aria-label="Journey meter">
+          <p class="journey-label">Your journey</p>
+          <p class="journey-statement" id="journeyStatement">Listening for what you want to rebuild toward…</p>
+          <div class="journey-meter" id="journeyMeter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="journey-fill" id="journeyFill"></div>
+          </div>
+          <p class="journey-meta" id="journeyMeta"></p>
+          <ul class="journey-checkpoints" id="journeyCheckpoints" hidden></ul>
+        </aside>
+        <div class="messages" id="messages"></div>
+        <form class="composer" id="composer">
+          <label class="sr-only" for="input">Message</label>
+          <textarea id="input" rows="1" placeholder="What's on your mind…" autocomplete="off"></textarea>
+          <button type="submit" id="sendBtn" aria-label="Send">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>
+        Companion only — not a clinician or emergency service.
+        If you are in danger: local emergency services · US <strong>988</strong> / <strong>911</strong> ·
+        <a href="https://www.iasp.info/suicidalthoughts/" target="_blank" rel="noopener">IASP resources</a>
+      </p>
+    </footer>
+  </div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

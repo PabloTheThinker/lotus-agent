@@ -1,0 +1,5 @@
+name: lotus-profile
+version: 0.24.0
+description: Internal professional user profile + Lotus notes (chart maintained via realtime core).
+hooks:
+  - on_session_start

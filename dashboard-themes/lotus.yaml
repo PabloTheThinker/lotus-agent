@@ -1,0 +1,14 @@
+name: lotus
+label: L.O.T.U.S.
+description: Calm pond-and-petal theme for the L.O.T.U.S. companion dashboard
+
+palette:
+  background: "#0c1210"
+  midground: "#8fbc9a"
+  foreground: "#e6f2ea"
+  accent: "#8fbc9a"
+  muted: "#6a8574"
+  border: "#2f4a3c"
+  success: "#7dce9a"
+  warning: "#e0c07a"
+  danger: "#e08a8a"

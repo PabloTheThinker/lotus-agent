@@ -1,0 +1,60 @@
+# L.O.T.U.S. skin — themes Hermes CLI, TUI, and desktop for this profile.
+# Soft water-lily palette: deep pond, pale petal, sage accent. Not Hermes gold.
+
+name: lotus
+description: L.O.T.U.S. — Light Over The Unseen Shadows (calm companion)
+
+colors:
+  background: "#0c1210"
+  ui_accent: "#8fbc9a"
+  banner_accent: "#8fbc9a"
+  banner_title: "#d8f0de"
+  banner_text: "#e6f2ea"
+  ui_text: "#e6f2ea"
+  banner_dim: "#6a8574"
+  banner_border: "#2f4a3c"
+  ui_border: "#2f4a3c"
+  ui_ok: "#7dce9a"
+  ui_warn: "#e0c07a"
+  ui_error: "#e08a8a"
+  ui_label: "#a8c9b4"
+  prompt: "#e6f2ea"
+  input_rule: "#8fbc9a"
+  response_border: "#8fbc9a"
+  status_bar_bg: "#08100d"
+  status_bar_text: "#e6f2ea"
+  status_bar_good: "#7dce9a"
+  status_bar_warn: "#e0c07a"
+  status_bar_critical: "#e08a8a"
+  session_label: "#a8c9b4"
+  session_border: "#2f4a3c"
+  voice_status_bg: "#08100d"
+  selection_bg: "#1a2e24"
+  completion_menu_bg: "#0c1210"
+  completion_menu_current_bg: "#1a2e24"
+  completion_menu_meta_bg: "#0c1210"
+  completion_menu_meta_current_bg: "#1a2e24"
+  ui_thinking: "#6a8574"
+
+branding:
+  agent_name: "L.O.T.U.S."
+  welcome: "L.O.T.U.S. — Light Over The Unseen Shadows. I'm here with you. Type a message or /help."
+  goodbye: "Take care. The light stays with you."
+  response_label: " L.O.T.U.S. "
+  prompt_symbol: "❀"
+  help_header: "(❀) Available Commands"
+
+spinner:
+  waiting_faces: ["(❀)", "(◦)", "(✧)", "(◦)"]
+  thinking_faces: ["(❀)", "(·)", "(✧)", "(·)"]
+  thinking_verbs:
+    - listening
+    - holding space
+    - gathering calm
+    - finding a gentle step
+    - staying with you
+  wings:
+    - ["⟪❀", "❀⟫"]
+    - ["⟪·", "·⟫"]
+
+tool_prefix: "┊"

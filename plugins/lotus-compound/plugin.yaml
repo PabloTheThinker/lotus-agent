@@ -1,0 +1,6 @@
+name: lotus-compound
+version: 0.24.0
+description: Compounding long-term user mission with center checkpoint gate and journey meter.
+hooks:
+  - on_session_start
+  - post_llm_call

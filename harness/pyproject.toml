@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lotus-harness"
+version = "0.24.0"
+description = "Specialized Hermes harness for L.O.T.U.S. — mental-health companion with research core and guardrails."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "L.O.T.U.S. Project" }]
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.9.0",
+  "pyright>=1.1.390",
+]
+openmed = ["openmed>=0.1.0"]
+
+[project.scripts]
+lotus-harness = "lotus.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lotus*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.pyright]
+include = ["lotus"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+reportMissingImports = "warning"
+reportMissingTypeStubs = false

@@ -1,0 +1,7 @@
+name: lotus-realtime
+version: 0.24.0
+description: Always-on understanding, learning, and research subroutines for L.O.T.U.S.
+hooks:
+  - pre_llm_call
+  - post_llm_call
+  - on_session_start

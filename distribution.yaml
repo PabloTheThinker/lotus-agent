@@ -1,0 +1,38 @@
+name: lotus
+version: 0.24.0
+description: "L.O.T.U.S. — humanity layer + moment routing (911/PST calm, EI, de-escalate), OpenMed-aware medical care, Cursor/Grok."
+hermes_requires: ">=0.19.0"
+author: "L.O.T.U.S. Project"
+license: "MIT"
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "OpenRouter API key (or use Nous Portal / another configured provider)"
+    required: false
+  - name: OPENAI_API_KEY
+    description: "OpenAI-compatible API key if not using OpenRouter/Nous Portal"
+    required: false
+  - name: API_SERVER_KEY
+    description: "Bearer token for Hermes API server (required for Lotus web UI proxy)"
+    required: false
+distribution_owned:
+  - SOUL.md
+  - AGENTS.md
+  - MISSION.md
+  - GUARDRAILS.md
+  - config.yaml
+  - profile.yaml
+  - distribution.yaml
+  - skills/lotus/
+  - plugins/lotus-safety/
+  - plugins/lotus-continuity/
+  - plugins/lotus-realtime/
+  - plugins/lotus-moments/
+  - plugins/lotus-compound/
+  - plugins/lotus-profile/
+  - cron/lotus-research-pulse.json
+  - research/
+  - harness/
+  - skins/
+  - dashboard-themes/
+  - frontend/
+  - research/OPENMED_PLAIN_LANGUAGE.md

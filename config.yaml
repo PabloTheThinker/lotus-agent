@@ -1,0 +1,40 @@
+# L.O.T.U.S. profile defaults — credentials stay in .env (never ship secrets)
+_config_version: 33
+
+model:
+  default: ""
+
+platform_toolsets: {}
+
+# Lotus-branded Hermes surfaces (CLI / TUI / desktop skin + dashboard theme)
+display:
+  skin: lotus
+  interface: cli
+  personality: ""
+  pet:
+    enabled: false
+    slug: ""
+    scale: 0.33
+
+dashboard:
+  theme: lotus
+
+memory:
+  enabled: true
+
+skills:
+  config: {}
+
+security:
+  require_approval_for_dangerous: true
+
+plugins:
+  enabled:
+    - lotus-safety
+    - lotus-continuity
+    - lotus-realtime
+    - lotus-moments
+    - lotus-compound
+    - lotus-profile
+  disabled: []
+  entries: {}

@@ -1,0 +1,5 @@
+name: lotus-safety
+version: 0.24.0
+description: Unsafe-output filter for L.O.T.U.S. (crisis context inject via orchestrator / lotus-realtime).
+hooks:
+  - transform_llm_output

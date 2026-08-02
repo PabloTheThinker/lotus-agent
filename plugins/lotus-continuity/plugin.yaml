@@ -1,0 +1,9 @@
+name: lotus-continuity
+version: 0.24.0
+description: >
+  Session-bridge and memory-sync for L.O.T.U.S. — resume cards, open threads,
+  and Hermes USER.md promotion candidates (context inject via orchestrator).
+hooks:
+  - on_session_start
+  - post_llm_call
+  - on_session_end

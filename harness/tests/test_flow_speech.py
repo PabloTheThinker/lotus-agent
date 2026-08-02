@@ -1,10 +1,10 @@
+from lotus.speech import build_speech_care_directive
 from lotus.speech.flow import (
     FLOW_DIRECTIVE,
     adjacency_hint,
     flow_block,
     scrub_verbal_tics,
 )
-from lotus.speech import build_speech_care_directive
 
 
 def test_flow_block_has_research_anchors():

@@ -16,7 +16,7 @@ class _FakeAIAgent:
                 "ephemeral": self.kwargs.get("ephemeral_system_prompt", ""),
             }
         )
-        return {"final_response": "I'm here with you. One small step when you're ready."}
+        return {"final_response": "That flat stretch is heavy. One small step when you're ready."}
 
 
 def test_ask_runs_orchestrator_and_persists_state(tmp_path, monkeypatch):
@@ -29,7 +29,7 @@ def test_ask_runs_orchestrator_and_persists_state(tmp_path, monkeypatch):
 
     agent = LotusAgent(hermes_home=str(tmp_path / "h"), quiet_mode=True)
     reply = agent.ask("I feel numb and empty today")
-    assert "here with you" in reply.lower()
+    assert "flat" in reply.lower() or "small step" in reply.lower()
 
     core = tmp_path / "h" / "memories" / "lotus-core"
     assert (core / "living_model.json").is_file()

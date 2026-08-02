@@ -1,5 +1,5 @@
-from lotus.speech.ei import ei_block, perceive_emotions, understand_emotions
 from lotus.speech import build_speech_care_directive
+from lotus.speech.ei import ei_block, perceive_emotions, understand_emotions
 
 
 def test_perceive_grief_blends():

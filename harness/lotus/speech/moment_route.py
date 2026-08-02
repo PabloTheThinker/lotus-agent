@@ -16,7 +16,6 @@ import re
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
-
 # seriousness ladder (inspired by agitation scales — companion-adapted)
 # calm → tender → charged → acute → crisis
 Severity = str

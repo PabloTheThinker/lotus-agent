@@ -1,5 +1,6 @@
 """Pattern recognition + talk plan + meta scrub + way-out / shock."""
 
+from lotus.speech import build_speech_care_directive
 from lotus.speech.flow import scrub_verbal_tics
 from lotus.speech.patterns import (
     TalkPatternMemory,
@@ -8,7 +9,6 @@ from lotus.speech.patterns import (
     recognize_hits,
     talk_plan_block,
 )
-from lotus.speech import build_speech_care_directive
 
 
 def test_reassurance_need_from_broken_question():
@@ -77,7 +77,8 @@ def test_scrub_meta_and_heart_cliche():
     assert "hearts get wrecked" not in cleaned.lower()
 
 
-def test_learn_way_out_clears_soft_company():
+def test_learn_way_out_clears_soft_company(tmp_path, monkeypatch):
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
     mem = learn_from_turn(
         "i don't know how people get out of this. what's even the point",
         "The crawl out is uneven — people usually leave by naming the weight out loud first.",

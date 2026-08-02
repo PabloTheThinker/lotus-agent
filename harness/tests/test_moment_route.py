@@ -1,5 +1,5 @@
-from lotus.speech.moment_route import detect_severity, detect_topic, route_moment
 from lotus.speech import build_speech_care_directive
+from lotus.speech.moment_route import detect_topic, route_moment
 
 
 def test_acute_violence_urge_routes_deescalate():

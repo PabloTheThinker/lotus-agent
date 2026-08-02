@@ -151,7 +151,7 @@ _PATTERN_RULES: list[tuple[str, float, re.Pattern[str]]] = [
 ]
 
 # Phrases that became a soft-hope / script loop — ban recycling
-_CLICHE_BANK = (
+_CLICHE_BANK: tuple[str, ...] = (
     "hearts get wrecked",
     "hearts take hits",
     "still come back",
@@ -317,7 +317,7 @@ def compound_way_out_line() -> str:
             rung = mission.current_ladder_rung or "body"
             return (
                 f"Talk through a way out in plain life-language "
-                f"(long arc, horizon≈{meter.estimated_horizon}): "
+                f"(long arc, rung≈{rung}, horizon≈{meter.estimated_horizon}): "
                 "how people actually get less stuck — someone safe to be honest with, "
                 "days that get a little less heavy, not a flip switch. "
                 "No nervous-system lecture. No homework."
@@ -383,7 +383,7 @@ def _pick_need(hits: List[PatternHit], mem: TalkPatternMemory) -> tuple[str, str
 
     if not scores:
         return "witness", "steady"
-    need = max(scores, key=scores.get)
+    need = max(scores.keys(), key=lambda k: scores[k])
     intensity = "soft" if need in {"receipt", "sit", "company"} else "steady"
     return need, intensity
 

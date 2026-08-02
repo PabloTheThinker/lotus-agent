@@ -1,6 +1,5 @@
 import json
 import zipfile
-from pathlib import Path
 
 from lotus.privacy import export_core, summarize_core, wipe_core
 from lotus.realtime.core import RealtimeCore

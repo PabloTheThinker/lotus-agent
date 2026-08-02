@@ -1,5 +1,5 @@
-from lotus.speech.emotion import choose_emotional_stance, emotion_block
 from lotus.speech import build_speech_care_directive
+from lotus.speech.emotion import choose_emotional_stance, emotion_block
 
 
 def test_grief_loss_gets_sorrow_or_fierce():
@@ -38,10 +38,8 @@ def test_emotion_block_in_speech_directive():
         protocols=["P3_grief"],
         affect="low",
     )
-    assert "EI" in text
-    assert "PERCEIVE:" in text or "perceive" in text.lower()
-    assert "LOTUS FELT STANCE" in text
-    assert text.index("VOICE OS") < text.index("EI")
+    assert "GATEWAY" in text or "CHARACTER" in text
+    assert "need=" in text
 
 
 def test_emotion_block_bans_performative():

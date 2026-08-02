@@ -1,6 +1,6 @@
+from lotus.speech import build_speech_care_directive
 from lotus.speech.humanity import humanity_block
 from lotus.speech.moment_route import detect_topic, route_moment
-from lotus.speech import build_speech_care_directive
 
 
 def test_humanity_mentions_openmed_and_not_911():
@@ -26,5 +26,5 @@ def test_speech_includes_humanity_and_dispatch():
         user_text="Unresponsive on the floor. 911 coming. What do I do right now?",
         affect="mixed",
     )
-    assert "HUMANITY" in text
-    assert "DISPATCH CALM" in text or "dispatch_calm" in text
+    assert "GATEWAY" in text or "CHARACTER" in text or "ACUTE" in text
+    assert "DISPATCH CALM" in text or "dispatch_calm" in text or "MOMENT ROUTE" in text

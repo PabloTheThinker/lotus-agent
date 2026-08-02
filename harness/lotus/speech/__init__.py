@@ -1,16 +1,14 @@
 """Careful speech — Voice OS, careful wording, humanizer (anti-mirror)."""
 
+from .ei import EmotionReading, ei_block, perceive_emotions, understand_emotions
+from .emotion import EmotionalStance, choose_emotional_stance, emotion_block
 from .engine import (
     apply_corrections_to_model,
     brutal_truth_mode,
     build_speech_care_directive,
     extract_language_corrections,
 )
-from .ei import EmotionReading, ei_block, perceive_emotions, understand_emotions
-from .emotion import EmotionalStance, choose_emotional_stance, emotion_block
 from .flow import FLOW_DIRECTIVE, adjacency_hint, flow_block, scrub_verbal_tics
-from .moment_route import MomentRoute, moment_route_block, route_moment
-from .patterns import TalkPlan, build_talk_plan, learn_from_turn, talk_plan_block
 from .gateway import build_via_gateway, gateway_block
 from .humanizer import (
     HUMANIZER_DIRECTIVE,
@@ -20,6 +18,8 @@ from .humanizer import (
     turn_depth,
     user_word_count,
 )
+from .moment_route import MomentRoute, moment_route_block, route_moment
+from .patterns import TalkPlan, build_talk_plan, learn_from_turn, talk_plan_block
 from .profiles import SpeechProfile, profiles_for
 from .voice_os import VOICE_OS_DIRECTIVE, voice_os_block
 

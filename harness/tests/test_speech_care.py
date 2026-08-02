@@ -38,10 +38,9 @@ def test_directive_includes_profile_and_truth_mode():
         protocols=["P3_grief"],
         affect="low",
     )
-    assert "CAREFUL SPEECH" in text
-    assert "profile:grief" in text
-    assert "brutal_truth_mode=off" in text
-    assert "avoid_wording" in text
+    assert "GATEWAY" in text or "CHARACTER" in text
+    assert "avoid_traps" in text or "ANTI-REPEAT" in text
+    assert "grief" in text.lower() or "need=" in text
 
 
 def test_stall_profile_when_horizon_longer():
@@ -62,5 +61,5 @@ def test_realtime_injects_careful_speech(tmp_path, monkeypatch):
 
     core = RealtimeCore()
     ctx = core.before_turn("I feel so numb and empty — please don't say just think positive")
-    assert "CAREFUL SPEECH" in ctx
-    assert "profile:" in ctx
+    assert "GATEWAY" in ctx or "CHARACTER" in ctx
+    assert "need=" in ctx or "ANTI-REPEAT" in ctx

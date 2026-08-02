@@ -65,3 +65,15 @@ errors.log
 .hermes_history
 *.log
 frontend/test-results/
+playwright-report/
+*-snapshots/
+
+# Regenerated model / stress outputs (Hermes-style: never commit transcripts)
+harness/tests/artifacts/*
+!harness/tests/artifacts/README.md
+scripts/out/
+
+# Editor / local agent tooling
+.cursor/
+.codex/
+.mcp.json

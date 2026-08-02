@@ -15,9 +15,9 @@ Project context for the L.O.T.U.S. Hermes profile and specialized harness.
 4. `skills/lotus/*/SKILL.md` — procedural skills (incl. `lotus-humanizer` voice)
 5. `research/SOURCES.md` — research posture and source tiers
 
-Speech: **Moment route** (topic × severity) → Voice OS → EI (when not acute) → Flow.
-Acute heat uses AAEP BETA / PFA style: short sentences, simple words (see `moment_route`).
-Full EI (appraisal + wisdom) only when severity allows. Humanizer anti-tells always.
+Speech: single **Gateway** (`harness/lotus/speech/gateway.py`) — character + pattern
+Talk Plan + context lock (no invented details). Moment-route only for true acute /
+medical emergency. Do **not** re-stack Voice OS / EI / Flow essays into the prompt.
 Do **not** write clinical essays into a flooded moment.
 
 ## Install (profile)

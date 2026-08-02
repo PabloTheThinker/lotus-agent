@@ -2,7 +2,12 @@
 
 **Light Over The Unseen Shadows**
 
-A specialized [Hermes Agent](https://hermes-agent.nousresearch.com/) for mental and emotional support — present for depression, health stress, grief, and major life events. Built to be a steady light in darkness: reconstructive, research-informed, and hard-guarded against chaos, violence, and self-harm.
+[![CI](https://github.com/PabloTheThinker/lotus-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/PabloTheThinker/lotus-agent/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Open-source specialized [Hermes Agent](https://github.com/NousResearch/hermes-agent) profile + harness for mental and emotional support — present for depression, health stress, grief, and major life events. A steady companion in the dark: reconstructive, research-informed, and hard-guarded against chaos, violence, and self-harm.
+
+Built **on** [Hermes Agent](https://hermes-agent.nousresearch.com/) by [Nous Research](https://nousresearch.com) — not a fork of Hermes core. See `NOTICE`.
 
 > **Not a licensed clinician or emergency service.** If you or someone else is in immediate danger, contact local emergency services. In the US: **988** or **911**. International: https://www.iasp.info/suicidalthoughts/
 
@@ -123,6 +128,16 @@ L.O.T.U.S. integrates **public** science and open research (including publicly r
 
 For the Lotus web UI, keep `API_SERVER_ENABLED=true` and `API_SERVER_KEY` in the profile `.env` (install seeds these). Optional Telegram/Discord tokens also use Hermes setup / gateway (`./scripts/lotus-gateway.sh`) with `GATEWAY_RELAY_DISPLAY_NAME=L.O.T.U.S.`
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
+
+```bash
+cd harness && pip install -e ".[dev]" && ruff check lotus tests && pyright lotus && pytest -q
+```
+
+Live model transcripts under `harness/tests/artifacts/` are **local-only** (gitignored), matching Hermes’s practice of not committing non-deterministic chat dumps.
+
 ## License
 
-MIT — see `LICENSE`.
+MIT — see [`LICENSE`](LICENSE). Hermes Agent attribution: [`NOTICE`](NOTICE).

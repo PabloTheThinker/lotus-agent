@@ -12,7 +12,7 @@ lotus_cmd() {
   elif command -v hermes >/dev/null 2>&1; then
     hermes -p lotus "$@"
   else
-    echo "Hermes / lotus not found. Run ./scripts/install-profile.sh first." >&2
+    echo "Hermes / lotus not found. Run ./install.sh first." >&2
     exit 1
   fi
 }

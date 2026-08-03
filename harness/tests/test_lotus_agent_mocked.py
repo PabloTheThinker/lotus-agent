@@ -21,13 +21,16 @@ class _FakeAIAgent:
 
 def test_ask_runs_orchestrator_and_persists_state(tmp_path, monkeypatch):
     monkeypatch.setenv("HERMES_HOME", str(tmp_path / "h"))
+    monkeypatch.delenv("LOTUS_BACKEND", raising=False)
     (tmp_path / "h").mkdir()
 
     from lotus.agent import LotusAgent
 
     monkeypatch.setattr(LotusAgent, "_import_ai_agent", staticmethod(lambda: _FakeAIAgent))
 
-    agent = LotusAgent(hermes_home=str(tmp_path / "h"), quiet_mode=True)
+    agent = LotusAgent(
+        hermes_home=str(tmp_path / "h"), quiet_mode=True, backend="hermes"
+    )
     reply = agent.ask("I feel numb and empty today")
     assert "flat" in reply.lower() or "small step" in reply.lower()
 

@@ -24,8 +24,10 @@ _EVENT_PATTERNS: List[Tuple[re.Pattern[str], str, str]] = [
     ),
     (
         re.compile(
-            r"\b(diagnos(?:ed|is)|hospital|surgery|chronic (?:pain|illness)|relapse|scan results?|"
-            r"diagnóstico|hôpital|krankenhaus|cirugía|chirurgie)\b",
+            r"\b(diagnos(?:ed|is)|surgery|chronic (?:pain|illness)|relapse|scan results?|"
+            r"my (?:hospital|surgery|scan|biopsy|diagnosis)|"
+            r"i(?:'m| am| was) (?:in|at) (?:the )?(?:hospital|er|icu)|"
+            r"diagnóstico|cirugía|chirurgie)\b",
             re.I,
         ),
         "health",
@@ -285,6 +287,18 @@ class MomentsEngine:
             m = rx.search(text)
             if not m:
                 continue
+            # Third-party hospital shock ≠ personal health moment
+            if kind == "health":
+                try:
+                    from lotus.speech.stated_facts import (
+                        is_self_health_signal,
+                        is_third_party_hospital,
+                    )
+
+                    if is_third_party_hospital(text) and not is_self_health_signal(text):
+                        continue
+                except Exception:
+                    pass
             snippet = " ".join(text.split())[:180]
             # Specialize title
             title = f"{title_prefix}: {snippet[:80]}"

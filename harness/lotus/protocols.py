@@ -32,9 +32,17 @@ _RULES: List[Tuple[Protocol, re.Pattern[str]]] = [
         r"falleci[oó]|murió|morreu|décédé|décès|gestorben)\b",
         re.I,
     )),
+    # Personal health stress — NOT third-party "mom's in the hospital" (friend shock).
+    # No bare "hospital" token — that false-triggered clinical containment.
     (Protocol.HEALTH, re.compile(
-        r"\b(diagnos|symptom|hospital|chronic pain|medical|illness anxiety|doctor said|"
-        r"diagnóstico|hôpital|krankenhaus|ospedale|sintoma|symptôme)\b",
+        r"\b(?:"
+        r"diagnos|symptom|chronic pain|illness anxiety|doctor said|"
+        r"my (?:scan|biopsy|lab|results?|diagnosis|symptoms?|pain)|"
+        r"lab results?|scan results?|medical (?:test|result|appointment|note)|"
+        r"i(?:'m| am| was) (?:in|at) (?:the )?(?:hospital|er|icu)|"
+        r"i(?:'m| am) (?:sick|in pain)|"
+        r"diagnóstico|sintoma|symptôme"
+        r")\b",
         re.I,
     )),
     (Protocol.DEPRESSION, re.compile(
@@ -53,11 +61,35 @@ _RULES: List[Tuple[Protocol, re.Pattern[str]]] = [
 ]
 
 
+def _health_matches(text: str) -> bool:
+    """P2 only for self-health; suppress third-party hospital-only hits."""
+    try:
+        from lotus.speech.stated_facts import is_self_health_signal, is_third_party_hospital
+    except Exception:
+        is_self_health_signal = None  # type: ignore
+        is_third_party_hospital = None  # type: ignore
+
+    for protocol, pattern in _RULES:
+        if protocol != Protocol.HEALTH:
+            continue
+        if not pattern.search(text or ""):
+            return False
+        if is_third_party_hospital and is_third_party_hospital(text):
+            if is_self_health_signal and not is_self_health_signal(text):
+                return False
+        return True
+    return False
+
+
 def classify_protocol(text: str) -> Protocol:
     """Return the highest-priority matching protocol."""
     if not text or not text.strip():
         return Protocol.GENERAL
     for protocol, pattern in _RULES:
+        if protocol == Protocol.HEALTH:
+            if _health_matches(text):
+                return Protocol.HEALTH
+            continue
         if pattern.search(text):
             return protocol
     return Protocol.GENERAL
@@ -65,5 +97,12 @@ def classify_protocol(text: str) -> Protocol:
 
 def classify_all(text: str) -> List[Protocol]:
     """Return all matching protocols (crisis first if present)."""
-    hits = [p for p, rx in _RULES if rx.search(text or "")]
+    hits: List[Protocol] = []
+    for p, rx in _RULES:
+        if p == Protocol.HEALTH:
+            if _health_matches(text):
+                hits.append(p)
+            continue
+        if rx.search(text or ""):
+            hits.append(p)
     return hits or [Protocol.GENERAL]

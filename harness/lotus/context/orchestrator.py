@@ -248,6 +248,7 @@ def build_turn_context(
             stall_horizon=stall_horizon,
             progress_signal=progress_signal,
             crisis=crisis,
+            history=history,
         )
         blocks.append(ContextBlock("speech", 20, speech, sticky=crisis))
 
@@ -257,6 +258,17 @@ def build_turn_context(
             core.model, latest=latest_voice, memory_snippets=memory_bits
         )
         blocks.append(ContextBlock("adaptive", 25, adapt, sticky=False))
+        try:
+            from lotus.memory_sync import memory_sync_directive
+            from lotus.speech.patterns import load_pattern_memory
+
+            bridge = memory_sync_directive(core.model, load_pattern_memory())
+            if bridge:
+                blocks.append(
+                    ContextBlock("memory_bridge", 28, bridge, sticky=False)
+                )
+        except Exception:
+            pass
 
     if not os_disabled("LOTUS_CONTINUITY_DISABLE"):
         try:
@@ -314,7 +326,17 @@ def build_turn_context(
         if research:
             blocks.append(ContextBlock("research", 50, research, sticky=False))
 
-    if looks_medical(user_text) or "medical_plain_language_bridge" in snap.needs:
+    # Plain-language bridge only for real medical jargon — not friend-shock hospital news
+    _plain_ok = looks_medical(user_text) or "medical_plain_language_bridge" in snap.needs
+    if _plain_ok:
+        try:
+            from lotus.speech.stated_facts import is_third_party_hospital, is_self_health_signal
+
+            if is_third_party_hospital(user_text) and not is_self_health_signal(user_text):
+                _plain_ok = False
+        except Exception:
+            pass
+    if _plain_ok:
         blocks.append(
             ContextBlock("plain_language", 55, plain_language_directive(user_text), sticky=False)
         )

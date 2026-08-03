@@ -11,6 +11,11 @@ def env_disabled(flag: str) -> bool:
     return os.environ.get(flag, "").lower() in {"1", "true", "yes", "on"}
 
 
+def harness_owns_turn() -> bool:
+    """True when LotusAgent.ask() is driving inject/learn — plugins should no-op."""
+    return env_disabled("LOTUS_HARNESS_OWNS_TURN")
+
+
 def bootstrap(plugin_file: str | Path) -> None:
     from lotus.plugin_bootstrap import bootstrap_from_plugin_file
 

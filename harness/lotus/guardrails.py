@@ -180,7 +180,9 @@ _PROTOCOL_HINTS: List[Tuple[re.Pattern[str], str]] = [
     ),
     (
         re.compile(
-            r"\b(diagnos|symptom|hospital|chronic pain|medical|illness anxiety)\b",
+            r"\b(diagnos|symptom|chronic pain|illness anxiety|doctor said|"
+            r"my (?:scan|biopsy|lab|results?|diagnosis|symptoms?)|"
+            r"i(?:'m| am| was) (?:in|at) (?:the )?(?:hospital|er|icu))\b",
             re.I,
         ),
         "P2_health",
@@ -213,6 +215,15 @@ def assess_user_text(text: str) -> SafetyAssessment:
     crisis = any(p.search(raw) for p in _CRISIS_PATTERNS)
     method_request = bool(_METHOD_RE.search(raw))
     protocols = [name for rx, name in _PROTOCOL_HINTS if rx.search(raw)]
+    # Suppress P2 on third-party hospital shock ("mom's in the hospital")
+    if "P2_health" in protocols:
+        try:
+            from lotus.speech.stated_facts import is_self_health_signal, is_third_party_hospital
+
+            if is_third_party_hospital(raw) and not is_self_health_signal(raw):
+                protocols = [p for p in protocols if p != "P2_health"]
+        except Exception:
+            pass
     return SafetyAssessment(
         crisis=crisis,
         method_request=method_request,

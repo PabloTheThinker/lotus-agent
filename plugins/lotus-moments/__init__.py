@@ -49,8 +49,10 @@ def _on_post_llm_call(**kwargs: Any) -> None:
         return
     try:
         _boot()
-        from lotus.plugin_hooks import as_text, living_snapshot
+        from lotus.plugin_hooks import as_text, harness_owns_turn, living_snapshot
 
+        if harness_owns_turn():
+            return
         user_text = as_text(kwargs.get("user_message"))
         assistant = kwargs.get("assistant_response") or ""
         if not isinstance(assistant, str):

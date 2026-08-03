@@ -51,8 +51,10 @@ _CRISIS_RE = re.compile(
 )
 
 _CHARGED_RE = re.compile(
+    # Note: bare "2am"/"3am" removed — "texted at 2am" is not charged heat by itself.
     r"\b(?:furious|rage|scream|screaming|hate|wrecked|panic|terrified|"
-    r"can't breathe|cant breathe|chest (?:is )?(?:tight|a fist)|2\s*am|3\s*am)\b",
+    r"can't breathe|cant breathe|chest (?:is )?(?:tight|a fist)|"
+    r"(?:up|awake|spiral(?:ing)?) at (?:2|3)\s*am)\b",
     re.I,
 )
 

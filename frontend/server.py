@@ -293,7 +293,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "setup_needed": not model_ok,
                     "setup_hint": None
                     if model_ok
-                    else "Connect a model with Hermes: lotus setup  (or ./scripts/lotus-setup.sh)",
+                    else "Connect a model with Hermes: lotus setup",
                     "model_detail": model_detail,
                 },
             )
@@ -434,7 +434,7 @@ class Handler(SimpleHTTPRequestHandler):
                 {
                     "error": (
                         f"{exc}. Start the Hermes gateway: "
-                        "`./scripts/lotus-gateway.sh start`"
+                        "`lotus gateway start`"
                     )
                 },
             )
@@ -466,7 +466,7 @@ class Handler(SimpleHTTPRequestHandler):
                 {
                     "error": (
                         f"{exc}. Start the Hermes gateway: "
-                        "`./scripts/lotus-gateway.sh start`"
+                        "`lotus gateway start`"
                     )
                 },
             )

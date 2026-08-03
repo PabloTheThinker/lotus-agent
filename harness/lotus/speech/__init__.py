@@ -1,4 +1,4 @@
-"""Careful speech — Voice OS, careful wording, humanizer (anti-mirror)."""
+"""Speech stack — Gateway owns inject; patterns/EI/humanizer feed it."""
 
 from .ei import EmotionReading, ei_block, perceive_emotions, understand_emotions
 from .emotion import EmotionalStance, choose_emotional_stance, emotion_block
@@ -19,7 +19,13 @@ from .humanizer import (
     user_word_count,
 )
 from .moment_route import MomentRoute, moment_route_block, route_moment
-from .patterns import TalkPlan, build_talk_plan, learn_from_turn, talk_plan_block
+from .patterns import (
+    TalkPlan,
+    build_talk_plan,
+    learn_from_turn,
+    sync_pattern_memory_to_model,
+    talk_plan_block,
+)
 from .profiles import SpeechProfile, profiles_for
 from .voice_os import VOICE_OS_DIRECTIVE, voice_os_block
 
@@ -47,6 +53,7 @@ __all__ = [
     "build_via_gateway",
     "gateway_block",
     "learn_from_turn",
+    "sync_pattern_memory_to_model",
     "length_match_directive",
     "moment_route_block",
     "perceive_emotions",

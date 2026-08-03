@@ -21,7 +21,7 @@ export API_SERVER_KEY="${API_SERVER_KEY:-${LOTUS_API_KEY:-}}"
 echo "L.O.T.U.S. frontend"
 echo "  UI:      http://${LOTUS_UI_HOST}:${LOTUS_UI_PORT}"
 echo "  Gateway: ${LOTUS_API_BASE}"
-echo "  Tip:     ./scripts/lotus-gateway.sh start   # if API is down"
+echo "  Tip:     lotus gateway start   # if API is down"
 echo
 
 exec python3 "$ROOT/frontend/server.py"

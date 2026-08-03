@@ -95,10 +95,15 @@ class RealtimeCore:
                 apply_corrections_to_model(self.model, user_text)
             except Exception:
                 pass
+            pattern_mem = None
             try:
-                from lotus.speech.patterns import learn_from_turn
+                from lotus.speech.patterns import (
+                    learn_from_turn,
+                    sync_pattern_memory_to_model,
+                )
 
-                learn_from_turn(user_text, assistant_text)
+                pattern_mem = learn_from_turn(user_text, assistant_text)
+                sync_pattern_memory_to_model(self.model, pattern_mem)
             except Exception:
                 pass
             try:
@@ -127,6 +132,13 @@ class RealtimeCore:
             except Exception:
                 pass
             self.research.sync_queue(self.model, snap)
+            # Production: queue Hermes promotions + write MEMORY_SYNC.md
+            try:
+                from lotus.memory_sync import sync_for_production
+
+                sync_for_production(self.model, pattern_mem)
+            except Exception:
+                pass
             self.model.save()
             self.research.write_approaches_md(self.model)
             self.clear_turn_snapshot()

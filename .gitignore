@@ -49,7 +49,9 @@ harness/.venv/
 hermes-agent/
 .worktrees/
 profiles/
-bin/
+# Local/runtime bins — keep the shipped Lotus CLI
+bin/*
+!bin/lotus
 node_modules/
 
 # User customization namespace
@@ -72,6 +74,9 @@ playwright-report/
 harness/tests/artifacts/*
 !harness/tests/artifacts/README.md
 scripts/out/
+# NOTE: LIVE_TRANSCRIPT.md lives at repo root on purpose so the editor can
+# open it (gitignore'd artifacts/ buffers go stale in Cursor). Never commit it.
+LIVE_TRANSCRIPT.md
 
 # Editor / local agent tooling
 .cursor/

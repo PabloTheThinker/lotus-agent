@@ -23,7 +23,7 @@ Requires Hermes Agent (`hermes` on PATH). See [Hermes install](https://hermes-ag
 ```bash
 git clone https://github.com/PabloTheThinker/lotus-agent.git
 cd lotus-agent
-./scripts/install-profile.sh
+./install.sh                         # Hermes profile + lotus CLI (~/.local/bin/lotus)
 
 # Harness
 cd harness

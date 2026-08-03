@@ -21,9 +21,12 @@ _CHECKIN_RE = re.compile(
     r"follow up|how (?:am|are) i doing)",
     re.I,
 )
+# Durable prefs only — NOT transient states ("i'm drunk", "i'm tired")
 _PREF_RE = re.compile(
-    r"(?:i (?:prefer|like|hate|don't like|do not like)|call me |my name is |"
-    r"i(?:'m| am) (?:a |an )?[\w\s]{2,40})",
+    r"(?:i (?:prefer|like|hate|don't like|do not like|dont like)\b|"
+    r"call me \w+|my name is \w+|"
+    r"please (?:don'?t|dont) (?:lecture|say|call)|"
+    r"don'?t (?:want|give) (?:me )?(?:advice|a lecture|homework))",
     re.I,
 )
 _QUESTION_LEFT_RE = re.compile(r"\?\s*$")

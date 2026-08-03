@@ -151,6 +151,21 @@ class LivingUserModel:
             lines.append("language_that_helps: " + "; ".join(self.preferred_language[-6:]))
         if self.avoided_language:
             lines.append("language_to_avoid: " + "; ".join(self.avoided_language[-6:]))
+        style = self.voice_style or {}
+        if style.get("frequent_needs") or style.get("sms_short") or style.get("hates_worksheets"):
+            bits = []
+            if style.get("reply_length"):
+                bits.append(f"reply_length={style.get('reply_length')}")
+            if style.get("frequent_needs"):
+                bits.append(f"needs={style.get('frequent_needs')}")
+            if style.get("hates_worksheets"):
+                bits.append("no_worksheets")
+            if style.get("hates_meta"):
+                bits.append("no_meta")
+            if int(style.get("soft_loop_count") or 0) >= 2:
+                bits.append(f"soft_loop={style.get('soft_loop_count')}")
+            if bits:
+                lines.append("talk_patterns: " + "; ".join(bits))
         if self.user_phrases:
             lines.append("their_phrases: " + "; ".join(self.user_phrases[-8:]))
         if self.user_metaphors:

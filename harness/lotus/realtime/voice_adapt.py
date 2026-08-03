@@ -188,6 +188,22 @@ def build_adaptation_directive(
             f"reply_length={style.get('reply_length', 'medium')} "
             "(match depth; keep Lotus diction)"
         )
+        pattern_bits = []
+        if style.get("sms_short") or style.get("reply_length") == "short":
+            pattern_bits.append("prefer SMS-short")
+        if style.get("hates_worksheets"):
+            pattern_bits.append("no five-step worksheets")
+        if style.get("hates_meta"):
+            pattern_bits.append("no meta-negation")
+        if style.get("soft_company"):
+            pattern_bits.append("company-over-tips sometimes")
+        loop = int(style.get("soft_loop_count") or 0)
+        if loop >= 2:
+            pattern_bits.append(f"soft_loop={loop} → escalate")
+        if style.get("frequent_needs"):
+            pattern_bits.append("frequent_needs=" + str(style["frequent_needs"]))
+        if pattern_bits:
+            lines.append("talk_pattern_prefs: " + "; ".join(pattern_bits))
 
     if latest and latest.raw_snippet:
         lines.append(f"this_turn_context (do not paraphrase back): {latest.raw_snippet}")
@@ -247,6 +263,17 @@ def write_voice_md(model: "LivingUserModel") -> None:
     if style:
         for k, v in style.items():
             lines.append(f"- {k}: {v}")
+    else:
+        lines.append("- (learning…)")
+    lines.append("")
+    lines.append("## Talk pattern prefs (from talk_patterns.json)")
+    if style.get("frequent_needs") or style.get("pattern_turns"):
+        lines.append(f"- pattern_turns: {style.get('pattern_turns', 0)}")
+        lines.append(f"- frequent_needs: {style.get('frequent_needs', '')}")
+        lines.append(f"- soft_loop_count: {style.get('soft_loop_count', 0)}")
+        lines.append(f"- hates_worksheets: {style.get('hates_worksheets', False)}")
+        lines.append(f"- hates_meta: {style.get('hates_meta', True)}")
+        lines.append(f"- soft_company: {style.get('soft_company', False)}")
     else:
         lines.append("- (learning…)")
     lines.append("")

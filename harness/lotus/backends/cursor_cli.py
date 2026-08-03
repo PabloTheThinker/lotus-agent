@@ -125,11 +125,17 @@ def _compose_prompt(
             "short pings can stay tight. Warm plain language, uneven rhythm. "
             "No AI essay tells, no tool narration. Companion only."
         )
-    parts.append(
-        "HARD RULE (context lock): Only use facts from USER MESSAGE / RECENT CONVERSATION. "
-        "Do not invent a name, biography, OR scene details (drunk, high, crying, motives, "
-        "places, what was in the texts) unless they said it. If you don't know — ask."
-    )
+    try:
+        from lotus.speech.context_lock import context_lock_block
+
+        parts.append(context_lock_block())
+    except Exception:
+        parts.append(
+            "HARD RULE (context lock): USE facts from USER MESSAGE / RECENT CONVERSATION. "
+            "Stay in that moment. Do not invent a name, biography, OR scene details "
+            "(drunk, high, crying, motives, places) unless they said it — "
+            "but if they DID say drunk/high/crying, use it. If you don't know — ask."
+        )
     parts.append(
         "HARD RULE (SMS / human texting): "
         "Write like a friend on Messenger — short when short, one main point. "

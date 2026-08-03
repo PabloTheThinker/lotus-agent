@@ -1,10 +1,27 @@
 # L.O.T.U.S. profile defaults — credentials stay in .env (never ship secrets)
-_config_version: 33
+_config_version: 34
 
 model:
   default: ""
 
+# Companion-lean tools (Hermes core-toolset efficiency batch + local/weaker models).
+# Disables coding-agent surfaces that burn schema tokens every turn (~50%+ of tool JSON).
+# Re-enable anytime:  lotus tools
+agent:
+  disabled_toolsets:
+    - browser
+    - delegation
+    - code_execution
+    - terminal
+    - file
+
 platform_toolsets: {}
+
+# Tighter tool output for smaller context windows (Hermes docs: small local models)
+tool_output:
+  max_bytes: 25000
+  max_lines: 800
+  max_line_length: 1200
 
 # Lotus-branded Hermes surfaces (CLI / TUI / desktop skin + dashboard theme)
 display:

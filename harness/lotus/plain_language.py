@@ -183,6 +183,11 @@ def plain_language_directive(text: str) -> str:
         for term, plain in hits[:12]:
             lines.append(f"  • {term} → {plain}")
     lines.append(
-        "Output shape: everyday meaning first, then optional (medical term), then clinician questions."
+        "Output shape: everyday meaning first, then optional (medical term). "
+        "Clinician questions ONLY if they ask for certainty — at most one, not a quiz."
+    )
+    lines.append(
+        "Containment first: stay with their fear this turn. "
+        "Do not default to symptom scoring or doctor-homework lists."
     )
     return "\n".join(lines)

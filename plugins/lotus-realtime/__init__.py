@@ -53,8 +53,10 @@ def _on_pre_llm_call(**kwargs: Any) -> Optional[Dict[str, str]]:
     try:
         _boot()
         from lotus.context import build_turn_context
-        from lotus.plugin_hooks import as_text, context_result
+        from lotus.plugin_hooks import as_text, context_result, harness_owns_turn
 
+        if harness_owns_turn():
+            return None
         text = as_text(kwargs.get("user_message"))
         history = kwargs.get("conversation_history")
         if not isinstance(history, list):
@@ -76,9 +78,11 @@ def _on_post_llm_call(**kwargs: Any) -> None:
         return
     try:
         _boot()
-        from lotus.plugin_hooks import as_text
+        from lotus.plugin_hooks import as_text, harness_owns_turn
         from lotus.realtime import get_core
 
+        if harness_owns_turn():
+            return
         user_text = as_text(kwargs.get("user_message"))
         assistant = kwargs.get("assistant_response") or ""
         if not isinstance(assistant, str):

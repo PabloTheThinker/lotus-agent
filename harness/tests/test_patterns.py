@@ -87,6 +87,28 @@ def test_learn_way_out_clears_soft_company(tmp_path, monkeypatch):
     assert any("way out" in n for n in mem.notes)
 
 
+def test_sync_pattern_memory_into_living_model(tmp_path, monkeypatch):
+    monkeypatch.setenv("HERMES_HOME", str(tmp_path))
+    from lotus.realtime.model import LivingUserModel
+    from lotus.speech.patterns import sync_pattern_memory_to_model
+
+    mem = TalkPatternMemory(
+        turn_count=4,
+        prefers_short=True,
+        hates_worksheets=True,
+        hates_meta=True,
+        soft_loop_count=3,
+        need_counts={"way_out": 2, "reassure": 1},
+        notes=["asked for a way out — give a real path"],
+    )
+    model = LivingUserModel()
+    sync_pattern_memory_to_model(model, mem)
+    assert model.voice_style.get("reply_length") == "short"
+    assert model.voice_style.get("hates_worksheets") is True
+    assert "no_worksheets" in model.prompt_block() or "talk_patterns" in model.prompt_block()
+    assert any("short SMS" in x for x in model.preferred_language)
+
+
 def test_gateway_pace_and_refusal():
     from lotus.speech.gateway import gateway_block
 

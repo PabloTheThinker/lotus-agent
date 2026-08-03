@@ -125,58 +125,68 @@ class LotusAgent:
         moments = get_moments()
         compound = get_compound()
 
-        # Single inject path (same as lotus-realtime pre_llm_call)
-        bundled = build_turn_context(
-            user_message,
-            history=conversation_history,
-            is_first_turn=not conversation_history,
-        )
-
-        if self._backend == "cursor":
-            text = self._ask_cursor(user_message, bundled, conversation_history)
-        else:
-            agent = self._ensure_agent(user_message, realtime_ctx=bundled)
-            result = agent.run_conversation(
-                user_message,
-                conversation_history=conversation_history,
-            )
-            if isinstance(result, dict):
-                text = result.get("final_response") or result.get("response") or ""
-            else:
-                text = str(result or "")
-
-        text = filter_model_output(text)
+        # Single inject path (same as lotus-realtime pre_llm_call).
+        # While LotusAgent drives the turn, tell Hermes plugins to skip their
+        # inject/learn hooks so we don't double-stack the same systems.
+        prev_owns = os.environ.get("LOTUS_HARNESS_OWNS_TURN")
+        os.environ["LOTUS_HARNESS_OWNS_TURN"] = "1"
         try:
-            from .speech.flow import scrub_verbal_tics
+            bundled = build_turn_context(
+                user_message,
+                history=conversation_history,
+                is_first_turn=not conversation_history,
+            )
 
-            text = scrub_verbal_tics(text)
-        except Exception:
-            pass
-        core.after_turn(user_message, text, history=conversation_history)
-        living = core.model
-        continuity.after_turn(
-            user_message,
-            text,
-            history=conversation_history,
-            living_affect=living.current_affect or "",
-            living_protocol=(living.active_protocols or [""])[0],
-        )
-        moments.after_turn(
-            user_message,
-            text,
-            protocols=list(living.active_protocols or []),
-            affect=living.current_affect or "",
-            history=conversation_history,
-        )
-        compound.after_turn(
-            user_message,
-            text,
-            protocols=list(living.active_protocols or []),
-            affect=living.current_affect or "",
-            crisis=safety.inject_crisis_override,
-            moment_ids=[m.id for m in moments.graph.moments[-5:]],
-        )
-        return text
+            if self._backend == "cursor":
+                text = self._ask_cursor(user_message, bundled, conversation_history)
+            else:
+                agent = self._ensure_agent(user_message, realtime_ctx=bundled)
+                result = agent.run_conversation(
+                    user_message,
+                    conversation_history=conversation_history,
+                )
+                if isinstance(result, dict):
+                    text = result.get("final_response") or result.get("response") or ""
+                else:
+                    text = str(result or "")
+
+            text = filter_model_output(text)
+            try:
+                from .speech.flow import scrub_verbal_tics
+
+                text = scrub_verbal_tics(text)
+            except Exception:
+                pass
+            core.after_turn(user_message, text, history=conversation_history)
+            living = core.model
+            continuity.after_turn(
+                user_message,
+                text,
+                history=conversation_history,
+                living_affect=living.current_affect or "",
+                living_protocol=(living.active_protocols or [""])[0],
+            )
+            moments.after_turn(
+                user_message,
+                text,
+                protocols=list(living.active_protocols or []),
+                affect=living.current_affect or "",
+                history=conversation_history,
+            )
+            compound.after_turn(
+                user_message,
+                text,
+                protocols=list(living.active_protocols or []),
+                affect=living.current_affect or "",
+                crisis=safety.inject_crisis_override,
+                moment_ids=[m.id for m in moments.graph.moments[-5:]],
+            )
+            return text
+        finally:
+            if prev_owns is None:
+                os.environ.pop("LOTUS_HARNESS_OWNS_TURN", None)
+            else:
+                os.environ["LOTUS_HARNESS_OWNS_TURN"] = prev_owns
 
     def _ask_cursor(
         self,

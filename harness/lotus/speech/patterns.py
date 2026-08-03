@@ -131,6 +131,16 @@ _PATTERN_RULES: list[tuple[str, float, re.Pattern[str]]] = [
         ),
     ),
     (
+        "intoxicated",
+        1.6,
+        re.compile(
+            r"\b(?:i(?:'m| am| was| got)|i've been)\s+"
+            r"(?:drunk|wasted|hammered|tipsy|high|stoned|blacked out)\b|"
+            r"\b(?:drank too much|too many drinks)\b",
+            re.I,
+        ),
+    ),
+    (
         "shame",
         1.0,
         re.compile(
@@ -209,6 +219,7 @@ class TalkPatternMemory:
     prefers_short: bool = False
     hates_meta: bool = True
     hates_worksheets: bool = False  # five-step dumps — ONE way-out still OK
+    hates_lecture: bool = False  # don't lecture / no interrogation
     soft_company: bool = False  # this thread asked for company recently
     likes_reassurance_path: bool = True
     soft_loop_count: int = 0
@@ -270,6 +281,7 @@ def load_pattern_memory() -> TalkPatternMemory:
             hates_worksheets=bool(
                 data.get("hates_worksheets", data.get("hates_plans", False))
             ),
+            hates_lecture=bool(data.get("hates_lecture", False)),
             soft_company=bool(data.get("soft_company", False)),
             likes_reassurance_path=bool(data.get("likes_reassurance_path", True)),
             soft_loop_count=int(data.get("soft_loop_count") or 0),
@@ -347,6 +359,7 @@ def _pick_need(hits: List[PatternHit], mem: TalkPatternMemory) -> tuple[str, str
         "heartbreak_storm": "reassure",
         "anxiety_spiral": "sit",
         "bad_choice": "company",  # stupid choice night → friend listen
+        "intoxicated": "company",  # stated drunk/high → stay in that moment
         "shame": "company",
         "acute_heat": "acute",
     }
@@ -360,6 +373,9 @@ def _pick_need(hits: List[PatternHit], mem: TalkPatternMemory) -> tuple[str, str
         return "friend_shock", "shock"
     if "acute" in scores:
         return "acute", "hard"
+    # Stated intoxication: stay present (MHFA) — company/listen, not lecture spiral
+    if "intoxicated" in names and "way_out" not in scores:
+        return "company", "steady"
     if "way_out" in scores:
         # Soft loop + asking for a way out → hard truth + path
         if mem.soft_loop_count >= 2:
@@ -475,6 +491,7 @@ def _move_text(
             "MOVE: realistic friend grounded ONLY in their words. "
             "Name what they actually said they did → ask why / what hit → one honest take. "
             "Example energy: 'Okay I get what you did. Why'd you hit send?' "
+            "If they said drunk/high/crying — USE that; stay in that moment. "
             "NEVER invent drunk/high/crying/cheating/etc. if they didn't say it. "
             "NOT: 'you already know' / 'I'm here if you want to sit' / soft absolution. "
             "Truthful. Human. Friend — not a judge inventing a scene."
@@ -612,6 +629,53 @@ def _extract_phrase_fingerprints(assistant_text: str) -> List[str]:
     return found
 
 
+def sync_pattern_memory_to_model(model: object, mem: Optional[TalkPatternMemory] = None) -> TalkPatternMemory:
+    """Push talk_patterns.json prefs into LivingUserModel so adaptive/living injects see them.
+
+    Hermes models only "use everything" when pattern learning lands in the same
+    living model / VOICE.md surface that every turn already injects.
+    """
+    mem = mem or load_pattern_memory()
+    style = dict(getattr(model, "voice_style", None) or {})
+    if mem.prefers_short:
+        style["reply_length"] = "short"
+        style["sms_short"] = True
+    style["hates_meta"] = bool(mem.hates_meta)
+    style["hates_worksheets"] = bool(mem.hates_worksheets)
+    style["hates_lecture"] = bool(mem.hates_lecture)
+    style["soft_company"] = bool(mem.soft_company)
+    style["soft_loop_count"] = int(mem.soft_loop_count or 0)
+    style["pattern_last_need"] = mem.last_need or ""
+    style["pattern_turns"] = int(mem.turn_count or 0)
+    if mem.need_counts:
+        top = sorted(mem.need_counts.items(), key=lambda x: -x[1])[:3]
+        style["frequent_needs"] = ",".join(f"{k}:{v}" for k, v in top)
+    if hasattr(model, "voice_style"):
+        model.voice_style = style  # type: ignore[attr-defined]
+
+    remember = getattr(model, "remember", None)
+    if callable(remember):
+        if mem.hates_worksheets:
+            remember("avoided_language", "five-step worksheet dumps", limit=24)
+        if mem.hates_meta:
+            remember("avoided_language", "meta-negation about advice", limit=24)
+        if mem.hates_lecture:
+            remember("preferred_language", "no lectures — statements when refused", limit=24)
+        if mem.prefers_short:
+            remember("preferred_language", "short SMS-length replies", limit=24)
+        if mem.soft_company:
+            remember("preferred_language", "company / listen first sometimes", limit=24)
+        if mem.soft_loop_count >= 2:
+            remember(
+                "failed_moves",
+                "soft-hope loop — escalate hard truth + one path",
+                limit=20,
+            )
+        for note in mem.notes[-3:]:
+            remember("relatability_notes", f"pattern:{note}", limit=12)
+    return mem
+
+
 def learn_from_turn(
     user_text: str,
     assistant_text: str,
@@ -668,6 +732,24 @@ def learn_from_turn(
     if any(p in low for p in ("five step", "five-step", "don't fix", "not a worksheet")):
         mem.hates_worksheets = True
         mem.remember_note("hates five-step worksheets — ONE path OK")
+
+    if any(
+        p in low
+        for p in (
+            "don't lecture",
+            "dont lecture",
+            "no lecture",
+            "don't wanna hear",
+            "dont wanna hear",
+            "don't want a lecture",
+            "please don't lecture",
+            "please dont lecture",
+            "without the lecture",
+        )
+    ):
+        mem.hates_lecture = True
+        mem.soft_company = True
+        mem.remember_note("hates lectures — statements only when refused")
 
     # Asking for a way out clears soft-company veto for path-giving
     if any(
@@ -730,6 +812,8 @@ def pattern_memory_directive(mem: Optional[TalkPatternMemory] = None) -> str:
         bits.append("prefer SMS-short")
     if mem.hates_worksheets:
         bits.append("no five-step worksheets (one path OK)")
+    if mem.hates_lecture:
+        bits.append("hates lectures — ZERO questions when they refuse")
     if mem.soft_company:
         bits.append("recently wanted company — still give path if they ask how to get out")
     if mem.notes:

@@ -41,7 +41,6 @@ class DoctorReport:
             lines.append(f"{len(self.errors)} issue(s) need attention before full use.")
             if any(c.name == "model_provider" for c in self.errors):
                 lines.append("Connect a model with Hermes:  lotus setup")
-                lines.append("                         or:  ./scripts/lotus-setup.sh")
                 lines.append("Web UI shows a setup banner until a model is connected.")
         else:
             lines.append("Core checks passed. Companion surfaces are ready.")
@@ -207,7 +206,7 @@ def run_doctor(hermes_home: Optional[str] = None) -> DoctorReport:
             Check(
                 "harness_import",
                 False,
-                f"cannot import lotus harness ({exc}) — run install-profile.sh or pip install -e harness/",
+                f"cannot import lotus harness ({exc}) — run ./install.sh or pip install -e harness/",
             )
         )
 
@@ -265,8 +264,19 @@ def run_doctor(hermes_home: Optional[str] = None) -> DoctorReport:
             skin and theme,
             "lotus skin + dashboard theme installed"
             if skin and theme
-            else "run install-profile.sh to copy skins/dashboard-themes",
+            else "run ./install.sh (or lotus update) to copy skins/dashboard-themes",
             level="warn" if not (skin and theme) else "ok",
+        )
+    )
+
+    # Companion-lean profile (Hermes core-toolset efficiency — local/weaker models)
+    lean_ok, lean_detail = _check_companion_lean(home)
+    report.checks.append(
+        Check(
+            "companion_lean",
+            lean_ok,
+            lean_detail,
+            level="ok" if lean_ok else "warn",
         )
     )
 
@@ -277,7 +287,7 @@ def run_doctor(hermes_home: Optional[str] = None) -> DoctorReport:
         Check(
             "gateway",
             gw_ok,
-            f"reachable ({gw_detail})" if gw_ok else f"not running ({gw_detail}) — ./scripts/lotus-gateway.sh start",
+            f"reachable ({gw_detail})" if gw_ok else f"not running ({gw_detail}) — lotus gateway start",
             level="warn",
         )
     )
@@ -351,7 +361,7 @@ def run_doctor(hermes_home: Optional[str] = None) -> DoctorReport:
             bool(session_secret),
             "LOTUS_UI_SESSION_SECRET set (stable across UI restarts)"
             if session_secret
-            else "unset — UI regenerates secret each restart (re-run install-profile.sh)",
+            else "unset — UI regenerates secret each restart (re-run ./install.sh)",
             level="ok" if session_secret else "warn",
         )
     )
@@ -418,6 +428,80 @@ def run_doctor(hermes_home: Optional[str] = None) -> DoctorReport:
     return report
 
 
+def _check_companion_lean(home: Path) -> tuple[bool, str]:
+    """Warn when coding-agent toolsets/skills re-bloat the lotus profile."""
+    import re
+
+    wanted = {"browser", "delegation", "code_execution", "terminal", "file"}
+    cfg_text = ""
+    cfg_path = home / "config.yaml"
+    if cfg_path.is_file():
+        try:
+            cfg_text = cfg_path.read_text(encoding="utf-8")
+        except OSError:
+            cfg_text = ""
+
+    disabled: set[str] = set()
+    in_block = False
+    for line in cfg_text.splitlines():
+        if re.match(r"^\s*disabled_toolsets\s*:", line):
+            in_block = True
+            continue
+        if in_block:
+            m = re.match(r"^\s*-\s*([A-Za-z0-9_-]+)\s*$", line)
+            if m:
+                disabled.add(m.group(1))
+                continue
+            if re.match(r"^\S", line) or (
+                line.strip() and not line.strip().startswith("-") and ":" in line
+            ):
+                in_block = False
+
+    missing_disable = sorted(wanted - disabled)
+
+    foreign_packs = []
+    skills = home / "skills"
+    if skills.is_dir():
+        for name in (
+            "apple",
+            "autonomous-ai-agents",
+            "creative",
+            "email",
+            "github",
+            "media",
+            "mlops",
+            "note-taking",
+            "productivity",
+            "research",
+            "smart-home",
+            "social-media",
+            "software-development",
+        ):
+            if (skills / name).is_dir():
+                foreign_packs.append(name)
+
+    if not missing_disable and not foreign_packs:
+        return (
+            True,
+            "companion-lean: heavy toolsets disabled + lotus-only skills "
+            "(re-enable via lotus tools; measure: lotus prompt-size)",
+        )
+
+    bits = []
+    if missing_disable:
+        bits.append(
+            "enable agent.disabled_toolsets for "
+            + ", ".join(missing_disable)
+            + " (or ./install.sh)"
+        )
+    if foreign_packs:
+        bits.append(
+            f"{len(foreign_packs)} Hermes skill pack(s) present — "
+            "run ./install.sh or lotus update to prune"
+        )
+    return False, "; ".join(bits)
+
+
 def _check_research_cron() -> tuple[bool, str]:
     import subprocess
 
@@ -438,8 +522,8 @@ def _check_research_cron() -> tuple[bool, str]:
     if "lotus-research-pulse" in out.lower():
         return True, "lotus-research-pulse scheduled"
     if proc.returncode != 0 and not out.strip():
-        return False, "cron list unavailable — schedule via install-profile.sh"
-    return False, "lotus-research-pulse not found — re-run ./scripts/install-profile.sh"
+        return False, "cron list unavailable — schedule via ./install.sh"
+    return False, "lotus-research-pulse not found — re-run ./install.sh"
 
 
 def _check_research_pulse_artifact(home: Path) -> tuple[bool, str]:

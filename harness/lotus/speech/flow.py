@@ -209,11 +209,15 @@ def adjacency_hint(user_text: str) -> str:
             "just listen",
             "don't fix",
             "no advice",
+            "don't lecture",
+            "no lecture",
+            "don't wanna hear",
         )
     ):
         return (
             "[THIS TURN MOVE: company] Stay with them in plain talk. "
-            "Skip plans silently — never announce that you're skipping them."
+            "Skip plans silently — never announce that you're skipping them. "
+            "ZERO question marks this turn."
         )
     # Default: contribution / trouble-telling
     words = len(t.split())

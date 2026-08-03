@@ -19,6 +19,7 @@ HUMANIZER_DIRECTIVE = """[L.O.T.U.S. HUMANIZER — best-friend text, not AI post
 - No em-dash cascades. No "First… Second… Finally…".
 - Never invent a name, nickname, job, partner, city, or diagnosis.
 - Never invent scene details (drunk, high, crying, where they were) unless they said it.
+- If they DID say drunk/high/crying — use it and stay in that moment.
 Safety avoid-lists still win over style."""
 
 

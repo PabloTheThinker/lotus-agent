@@ -1,0 +1,300 @@
+#!/usr/bin/env bash
+# L.O.T.U.S. CLI — Light Over The Unseen Shadows
+#
+# Branded entrypoint over Hermes Agent. Same commands as `hermes`, always
+# scoped to the lotus profile. Lotus-owned verbs (doctor, update, gateway,
+# frontend) prefer profile scripts when present.
+#
+# Installed to ~/.local/bin/lotus by install.sh / install-profile.sh.
+# Source of truth lives in the lotus-agent repo at bin/lotus.
+
+set -euo pipefail
+
+PROFILE_NAME="${LOTUS_PROFILE:-lotus}"
+PROFILE_HOME="${HERMES_HOME:-$HOME/.hermes/profiles/${PROFILE_NAME}}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors (match Hermes installer tone; disable when not a TTY)
+if [[ -t 1 ]]; then
+  BOLD=$'\033[1m'
+  CYAN=$'\033[0;36m'
+  GREEN=$'\033[0;32m'
+  YELLOW=$'\033[0;33m'
+  NC=$'\033[0m'
+else
+  BOLD="" CYAN="" GREEN="" YELLOW="" NC=""
+fi
+
+find_hermes() {
+  if [[ -n "${HERMES_BIN:-}" && -x "${HERMES_BIN}" ]]; then
+    echo "$HERMES_BIN"
+    return
+  fi
+  if command -v hermes >/dev/null 2>&1; then
+    command -v hermes
+    return
+  fi
+  # Common install locations when PATH is thin (cron, GUI launchers)
+  for candidate in \
+    "$HOME/.local/bin/hermes" \
+    /usr/local/bin/hermes \
+    "$HOME/.hermes/hermes-agent/venv/bin/hermes" \
+    "$HOME/.hermes/hermes-agent/.venv/bin/hermes"
+  do
+    if [[ -x "$candidate" ]]; then
+      echo "$candidate"
+      return
+    fi
+  done
+  return 1
+}
+
+die_no_hermes() {
+  echo "${BOLD}L.O.T.U.S.${NC} needs Hermes Agent on PATH." >&2
+  echo "Install Hermes first:" >&2
+  echo "  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash" >&2
+  echo "Then install Lotus:" >&2
+  echo "  curl -fsSL https://raw.githubusercontent.com/PabloTheThinker/lotus-agent/main/install.sh | bash" >&2
+  exit 1
+}
+
+HERMES="$(find_hermes)" || die_no_hermes
+
+run_hermes() {
+  exec "$HERMES" -p "$PROFILE_NAME" "$@"
+}
+
+run_hermes_capture() {
+  "$HERMES" -p "$PROFILE_NAME" "$@"
+}
+
+profile_script() {
+  local name="$1"
+  if [[ -x "$PROFILE_HOME/scripts/$name" ]]; then
+    echo "$PROFILE_HOME/scripts/$name"
+    return 0
+  fi
+  # Dev checkout: bin/lotus next to scripts/
+  local repo_scripts
+  repo_scripts="$(cd "$SCRIPT_DIR/.." && pwd)/scripts"
+  if [[ -x "$repo_scripts/$name" ]]; then
+    echo "$repo_scripts/$name"
+    return 0
+  fi
+  return 1
+}
+
+lotus_version() {
+  local ver="unknown"
+  if [[ -f "$PROFILE_HOME/distribution.yaml" ]]; then
+    ver="$(awk -F': *' '/^version:/{print $2; exit}' "$PROFILE_HOME/distribution.yaml" | tr -d '"')"
+  fi
+  echo "${BOLD}L.O.T.U.S.${NC} ${CYAN}v${ver}${NC} — Light Over The Unseen Shadows"
+  echo "Profile: ${PROFILE_HOME}"
+  if "$HERMES" --version >/dev/null 2>&1; then
+    echo -n "Hermes:  "
+    "$HERMES" --version 2>/dev/null | head -1
+  fi
+}
+
+lotus_help() {
+  cat <<EOF
+${BOLD}L.O.T.U.S.${NC} — Light Over The Unseen Shadows
+Hermes Agent companion for mental & emotional support
+
+${BOLD}Usage${NC}
+  lotus                     Start chat (default)
+  lotus chat [args]         Interactive chat
+  lotus setup [section]     Connect model / provider (Hermes wizard)
+  lotus doctor              Verify Lotus + Hermes readiness
+  lotus update              Pull latest Lotus distribution
+  lotus gateway [cmd]       Messaging gateway + OpenAI API
+  lotus frontend            Lotus web UI
+  lotus status              Component status
+  lotus <hermes-cmd> …      Any Hermes command on the lotus profile
+
+${BOLD}Examples${NC}
+  lotus setup               # required once — wire the AI model
+  lotus                     # talk
+  lotus gateway start       # relays + /v1 API for the web UI
+  lotus frontend            # http://127.0.0.1:8787
+
+${BOLD}Install${NC}
+  curl -fsSL https://raw.githubusercontent.com/PabloTheThinker/lotus-agent/main/install.sh | bash
+
+Requires Hermes Agent ≥0.19 — https://hermes-agent.nousresearch.com/
+Any Hermes command works scoped to Lotus, e.g.  lotus sessions list
+EOF
+}
+
+ensure_profile() {
+  if [[ ! -d "$PROFILE_HOME" ]]; then
+    echo "${YELLOW}L.O.T.U.S. profile not installed.${NC}" >&2
+    echo "Install with:" >&2
+    echo "  curl -fsSL https://raw.githubusercontent.com/PabloTheThinker/lotus-agent/main/install.sh | bash" >&2
+    echo "Or from a clone:" >&2
+    echo "  ./install.sh" >&2
+    exit 1
+  fi
+}
+
+load_profile_env() {
+  local envf="${PROFILE_HOME}/.env"
+  if [[ -f "$envf" ]]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$envf"
+    set +a
+  fi
+  export GATEWAY_RELAY_DISPLAY_NAME="${GATEWAY_RELAY_DISPLAY_NAME:-L.O.T.U.S.}"
+}
+
+install_self_to_path() {
+  # Refresh ~/.local/bin/lotus from profile or this script
+  local dest="${LOTUS_BIN_DIR:-$HOME/.local/bin}/lotus"
+  local src=""
+  if [[ -f "$PROFILE_HOME/bin/lotus" ]]; then
+    src="$PROFILE_HOME/bin/lotus"
+  elif [[ -f "$SCRIPT_DIR/lotus" ]]; then
+    src="$SCRIPT_DIR/lotus"
+  else
+    return 0
+  fi
+  mkdir -p "$(dirname "$dest")"
+  # Avoid clobbering while executing ourselves if dest == this file
+  if [[ "$(readlink -f "$src" 2>/dev/null || echo "$src")" == "$(readlink -f "$dest" 2>/dev/null || echo "$dest")" ]]; then
+    return 0
+  fi
+  cp -f "$src" "$dest"
+  chmod +x "$dest"
+  echo "${GREEN}✓${NC} CLI → $dest"
+}
+
+cmd_update() {
+  ensure_profile
+  echo "${BOLD}Updating L.O.T.U.S.…${NC}"
+  "$HERMES" profile update "$PROFILE_NAME" "$@"
+  # Prefer distribution-owned CLI after update
+  if [[ -f "$PROFILE_HOME/bin/lotus" ]]; then
+    install_self_to_path
+  fi
+  # Refresh harness into Hermes Python when possible
+  local py
+  py="$(command -v python3)"
+  if [[ -x "$HOME/.hermes/hermes-agent/venv/bin/python" ]]; then
+    py="$HOME/.hermes/hermes-agent/venv/bin/python"
+  elif [[ -x "$HOME/.hermes/hermes-agent/.venv/bin/python" ]]; then
+    py="$HOME/.hermes/hermes-agent/.venv/bin/python"
+  fi
+  if [[ -d "$PROFILE_HOME/harness" ]]; then
+    echo "Refreshing lotus-harness…"
+    "$py" -m pip install -e "$PROFILE_HOME/harness" --quiet 2>/dev/null \
+      || echo "  (harness pip skipped — plugins use path bootstrap)"
+  fi
+  # Re-apply companion-lean skill prune (hermes update re-syncs bundled packs)
+  if [[ -f "$PROFILE_HOME/scripts/lib/lotus-post-install.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "$PROFILE_HOME/scripts/lib/lotus-post-install.sh"
+    lotus_prune_foreign_skills
+  fi
+  run_hermes_capture skin use lotus >/dev/null 2>&1 || true
+  echo
+  echo "${GREEN}Updated.${NC} Next: ${CYAN}lotus doctor${NC} then ${CYAN}lotus${NC}"
+}
+
+cmd_doctor() {
+  ensure_profile
+  local script
+  if script="$(profile_script lotus-doctor.sh)"; then
+    exec "$script" "$@"
+  fi
+  if command -v lotus-harness >/dev/null 2>&1; then
+    exec lotus-harness doctor "$@"
+  fi
+  run_hermes doctor "$@"
+}
+
+cmd_gateway() {
+  ensure_profile
+  load_profile_env
+  local script
+  if script="$(profile_script lotus-gateway.sh)"; then
+    exec "$script" "$@"
+  fi
+  # Fallback: raw Hermes gateway under lotus profile
+  local action="${1:-start}"
+  shift || true
+  run_hermes gateway "$action" "$@"
+}
+
+cmd_frontend() {
+  ensure_profile
+  load_profile_env
+  local script
+  if script="$(profile_script lotus-frontend.sh)"; then
+    exec "$script" "$@"
+  fi
+  echo "Frontend script missing from profile. Re-run: lotus update" >&2
+  exit 1
+}
+
+cmd_chat_default() {
+  ensure_profile
+  load_profile_env
+  run_hermes_capture skin use lotus >/dev/null 2>&1 || true
+  run_hermes chat "$@"
+}
+
+# ── dispatch ──────────────────────────────────────────────────────────────
+case "${1:-}" in
+  -h|--help|help)
+    lotus_help
+    ;;
+  -V|--version|version)
+    lotus_version
+    ;;
+  "")
+    cmd_chat_default
+    ;;
+  chat)
+    shift
+    cmd_chat_default "$@"
+    ;;
+  setup)
+    shift
+    ensure_profile
+    run_hermes setup "$@"
+    ;;
+  doctor)
+    shift
+    cmd_doctor "$@"
+    ;;
+  update)
+    shift
+    cmd_update "$@"
+    ;;
+  gateway)
+    shift
+    cmd_gateway "$@"
+    ;;
+  frontend|ui|web)
+    shift
+    cmd_frontend "$@"
+    ;;
+  install)
+    echo "To install or reinstall L.O.T.U.S., run the installer:" >&2
+    echo "  curl -fsSL https://raw.githubusercontent.com/PabloTheThinker/lotus-agent/main/install.sh | bash" >&2
+    echo "From a local clone:" >&2
+    echo "  ./install.sh" >&2
+    exit 2
+    ;;
+  --)
+    shift
+    ensure_profile
+    run_hermes "$@"
+    ;;
+  *)
+    ensure_profile
+    run_hermes "$@"
+    ;;
+esac

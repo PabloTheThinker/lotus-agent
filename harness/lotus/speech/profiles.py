@@ -115,12 +115,12 @@ PROFILES: Dict[str, SpeechProfile] = {
     ),
     "health": SpeechProfile(
         key="health",
-        intent="Contain the spiral tonight; never diagnose; plain language only.",
+        intent="Contain the fear THIS turn; never diagnose; plain language only.",
         prefer=(
-            "everyday words for medical terms",
+            "everyday words for medical terms (only if they used jargon)",
             "I'm not your doctor",
             "if this is an emergency, seek emergency care",
-            "one small thing for *tonight*",
+            "stay with the overwhelm before organizing anything",
         ),
         avoid=(
             "you probably have X",
@@ -128,18 +128,20 @@ PROFILES: Dict[str, SpeechProfile] = {
             "don't worry it's nothing",
             "scare-mongering lists",
             "homework lists of clinician questions every turn",
+            "symptom scoring / clinical interrogation as the default",
         ),
         traps=(
             "false reassurance ('it's nothing') can delay care",
             "jargon without translation increases panic",
             "hedging so much that urgency disappears",
             "repeating 'write questions for your doctor' can feel like pressure",
+            "treating every hospital mention as their personal health anxiety",
         ),
         stance="clear",
         notes=(
             "Brutal truth when symptoms sound emergent — redirect clearly.",
-            "Otherwise: honest uncertainty + plain language. Offer a clinician question "
-            "at most once if they ask for certainty — not as the main move every turn.",
+            "Default = containment of fear, not clinician-question homework. "
+            "Offer one doctor question only if they ask for certainty.",
         ),
     ),
     "life_event": SpeechProfile(

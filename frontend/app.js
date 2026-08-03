@@ -375,7 +375,7 @@ async function sendMessage(text) {
     bubble.remove();
     addBubble(
       "system",
-      `Could not reach L.O.T.U.S.: ${err.message}. Is the gateway running? (./scripts/lotus-gateway.sh)`
+      `Could not reach L.O.T.U.S.: ${err.message}. Is the gateway running? (lotus gateway start)`
     );
     history.pop();
     setStatus("Error", "err");

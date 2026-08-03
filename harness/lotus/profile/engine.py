@@ -207,7 +207,7 @@ class ProfileEngine:
         hypo_map = {
             "P1_depression": "Low energy/numbness may respond better to micro-activation than insight dumps.",
             "P3_grief": "Grief waves may need presence more than problem-solving.",
-            "P2_health": "Health fear may ease with plain language + clinician-ready questions.",
+            "P2_health": "Health fear may ease with containment first, then plain language — not quiz mode.",
             "P4_major_event": "Acute life change — protect against chaotic big decisions while flooded.",
         }
         for p in self.profile.active_protocols:

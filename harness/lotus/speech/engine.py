@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Dict, Any
 
 from .profiles import GLOBAL_TRAPS, SpeechProfile, profiles_for
 
@@ -74,6 +74,7 @@ def build_speech_care_directive(
     stall_horizon: str = "",
     progress_signal: bool = False,
     crisis: bool = False,
+    history: Optional[Sequence[Dict[str, Any]]] = None,
 ) -> str:
     """Single gateway speech pipe — layers don't stack-fight anymore."""
     kinds = list(moment_kinds or [])
@@ -109,6 +110,7 @@ def build_speech_care_directive(
             crisis=crisis,
             brutal_truth=truth,
             never_use=never_u or None,
+            history=history,
         )
         if preferred_language:
             text += "\nthey_asked_for_style: " + "; ".join(list(preferred_language)[-6:])

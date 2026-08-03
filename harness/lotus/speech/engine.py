@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Sequence, Dict, Any
+from typing import Any, Dict, List, Optional, Sequence
 
 from .profiles import GLOBAL_TRAPS, SpeechProfile, profiles_for
 

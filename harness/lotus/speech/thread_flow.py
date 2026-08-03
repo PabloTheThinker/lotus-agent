@@ -8,8 +8,7 @@ Scripted transcripts ignored Lotus's questions. Real chat needs:
 from __future__ import annotations
 
 import re
-from typing import Any, List, Optional, Sequence
-
+from typing import Any, Optional, Sequence
 
 _QUESTION_SPLIT = re.compile(r"(?<=[?])\s+")
 
@@ -95,7 +94,7 @@ def thread_flow_directive(
         f"You asked last: {q}",
     ]
     try:
-        from .question_discipline import refuses_advice_or_lecture, is_closing_beat
+        from .question_discipline import is_closing_beat, refuses_advice_or_lecture
 
         no_q = refuses_advice_or_lecture(user_text) or is_closing_beat(user_text)
     except Exception:

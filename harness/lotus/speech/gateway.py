@@ -6,7 +6,7 @@ Everything else feeds THIS or stays quiet.
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Sequence, Any
+from typing import Any, List, Optional, Sequence
 
 from .context_lock import CONTEXT_LOCK
 from .patterns import (

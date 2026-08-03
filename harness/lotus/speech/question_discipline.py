@@ -7,7 +7,7 @@ Late-night companions fail when they keep asking after "don't lecture" /
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Sequence, Any
+from typing import Any, List, Optional, Sequence
 
 _NO_LECTURE = re.compile(
     r"\b(?:don'?t (?:lecture|preach|judge)|dont (?:lecture|preach|judge)|"

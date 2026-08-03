@@ -330,7 +330,7 @@ def build_turn_context(
     _plain_ok = looks_medical(user_text) or "medical_plain_language_bridge" in snap.needs
     if _plain_ok:
         try:
-            from lotus.speech.stated_facts import is_third_party_hospital, is_self_health_signal
+            from lotus.speech.stated_facts import is_self_health_signal, is_third_party_hospital
 
             if is_third_party_hospital(user_text) and not is_self_health_signal(user_text):
                 _plain_ok = False
